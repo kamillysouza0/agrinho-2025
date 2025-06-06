@@ -2,6 +2,8 @@ let farmer;
 let foods = [];
 let obstacles = [];
 let score = 0;
+let gameEnded = false;
+let targetScore = 10; // Pontuação necessária para "chegar na cidade"
 
 function setup() {
   createCanvas(600, 400);
@@ -13,13 +15,21 @@ function setup() {
 }
 
 function draw() {
-  background(180, 230, 180); // Fundo verde do campo
+  // Muda o fundo conforme o progresso: campo (verde) → cidade (cinza claro)
+  if (score < targetScore) {
+    background(180, 230, 180); // Campo
+  } else {
+    background(200); // Cidade
+  }
 
-  // Atualiza e exibe o jogador
+  if (gameEnded) {
+    showVictory();
+    return;
+  }
+
   farmer.update();
   farmer.display();
 
-  // Alimentos do campo
   for (let i = foods.length - 1; i >= 0; i--) {
     foods[i].display();
     if (farmer.collects(foods[i])) {
@@ -29,7 +39,6 @@ function draw() {
     }
   }
 
-  // Obstáculos (problemas no campo)
   for (let obs of obstacles) {
     obs.display();
     if (farmer.collides(obs)) {
@@ -37,16 +46,19 @@ function draw() {
     }
   }
 
-  // Exibe a pontuação
   fill(0);
   textSize(18);
-  text("Alimentos entregues: " + score, 10, 30);
+  if (score < targetScore) {
+    text("Alimentos entregues: " + score, 10, 30);
+  } else {
+    text("Você chegou à cidade!", 10, 30);
+    gameEnded = true;
+  }
 }
 
-// Classe do Agricultor
 class Farmer {
   constructor() {
-    this.size = 30;
+    this.size = 40;
     this.x = width / 2;
     this.y = height / 2;
     this.speed = 5;
@@ -63,8 +75,7 @@ class Farmer {
   }
 
   display() {
-    fill(139, 69, 19); // Marrom, representa um agricultor
-    noStroke();
+    fill(139, 69, 19); // Trator marrom
     rect(this.x, this.y, this.size, this.size);
   }
 
@@ -80,7 +91,6 @@ class Farmer {
   }
 }
 
-// Alimentos do campo
 class Food {
   constructor() {
     this.size = 20;
@@ -89,13 +99,11 @@ class Food {
   }
 
   display() {
-    fill(255, 215, 0); // Amarelo (milho)
-    noStroke();
+    fill(255, 215, 0); // Milho
     ellipse(this.x, this.y, this.size);
   }
 }
 
-// Problemas do campo
 class Obstacle {
   constructor() {
     this.size = 40;
@@ -104,8 +112,7 @@ class Obstacle {
   }
 
   display() {
-    fill(120); // Cinza (problemas, como pedras ou pragas)
-    noStroke();
+    fill(100); // Cinza escuro - pedras/pragas
     rect(this.x, this.y, this.size, this.size);
   }
 }
@@ -114,5 +121,14 @@ function gameOver() {
   textSize(32);
   fill(255, 0, 0);
   text("Fim de jogo!", width / 3, height / 2);
+  noLoop();
+}
+
+function showVictory() {
+  textSize(28);
+  fill(0, 100, 255);
+  text("Parabéns!", width / 3 + 10, height / 2 - 20);
+  textSize(20);
+  text("Você levou os alimentos do campo para a cidade!", width / 6, height / 2 + 20);
   noLoop();
 }
